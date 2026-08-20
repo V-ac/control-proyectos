@@ -60,3 +60,16 @@ gulpfile.tmp.*
 
 # Package Lock files
 /package-lock.json
+
+
+# Datos locales y archivos sensibles
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+.env
+.env.*
+!.env.example
+
+# Copia generada o duplicada del servidor
+/assets/vendor/server/

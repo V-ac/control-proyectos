@@ -1,145 +1,1355 @@
-<!DOCTYPE html>
+<!doctype html>
+<html lang="es" class="layout-menu-fixed layout-compact" data-assets-path="../assets/"
+  data-template="vertical-menu-template-free">
 
-<html
-  lang="en"
-  class="customizer-hide"
-  dir="ltr"
-  data-assets-path="assets/"
-  data-template="vertical-menu-template-no-customizer">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <title>RONI - Dashboard Personal</title>
+  <meta name="description" content="Dashboard personal de productividad" />
+  <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
 
-    <title>Sneat - Free Bootstrap 5 HTML Admin Template</title>
+  <!-- Fuentes y estilos base -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/vendor/fonts/iconify-icons.css" />
+  <link rel="stylesheet" href="../assets/vendor/css/core.css" />
+  <link rel="stylesheet" href="../assets/css/demo.css" />
+  <link rel="stylesheet" href="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+  <link rel="stylesheet" href="../assets/vendor/libs/apex-charts/apex-charts.css" />
 
-    <meta name="description" content="" />
+  <!-- Calendario nativo: estilos (reemplaza FullCalendar CDN) -->
+  <style>
+    /* Estilos para el Calendario Nativo integrado */
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: #e6e9ee;
+      border: 1px solid #e6e9ee;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="assets/img/favicon/favicon.ico" />
+    .cal-day-label {
+      background: #f5f5f9;
+      padding: 10px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: #566a7f;
+    }
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
-      rel="stylesheet" />
+    .cal-cell {
+      background: #fff;
+      min-height: 100px;
+      padding: 8px;
+      position: relative;
+      transition: 0.2s;
+      cursor: pointer;
+    }
 
-    <!-- Core CSS -->
-    <link rel="stylesheet" href="assets/vendor/css/core.css" />
-    <link rel="stylesheet" href="assets/css/demo.css" />
-  </head>
+    .cal-cell:hover {
+      background: #f3f7ff;
+    }
 
-  <body>
-    <!-- Content -->
-    <div class="container flex-grow-1 container-p-y my-2">
-      <h3>Thank you for using Sneat - Free Bootstrap 5 HTML Admin Template! 😇</h3>
-      <p>
-        If you’re a developer looking for most Powerful & comprehensive Bootstrap 5 HTML Admin Dashboard Template built
-        for developers, rich with features, and highly customizable look no further than Sneat. We’ve followed the
-        highest industry standards to bring you the very best admin template that is not only fast and easy to use but
-        highly scalable. Offering ultimate convenience and flexibility, you’ll be able to build whatever application you
-        want with very little hassle.
-      </p>
+    .cal-cell.dim {
+      background: #fcfcfd;
+      color: #b4bdc6;
+    }
 
-      <!-- Examples -->
-      <div class="row mt-sm-4 mt-3">
-        <div class="col-12 mb-3">
-          <div class="card">
-            <h5 class="card-header">Template Links</h5>
-            <!-- Template Demo Links -->
-            <table class="table">
-              <tbody>
-                <tr>
-                  <th>Free Version</th>
-                  <td><a href="html/index.html" target="_blank">Vertical Menu Template</a></td>
-                </tr>
-              </tbody>
-            </table>
-            <!--/ Template Demo Links -->
-          </div>
+    .cal-cell.today {
+      background: #f0f7ff;
+      border: 1px solid #696cff;
+    }
+
+    .cal-date {
+      font-weight: 700;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .cal-events {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .cal-event-badge {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+
+    .ev-salida {
+      background-color: #696cff;
+    }
+
+    .ev-compromiso {
+      background-color: #71dd37;
+    }
+
+    .ev-pendiente {
+      background-color: #ff3e1d;
+    }
+
+    /* Small responsiveness tweak */
+    @media (max-width: 767px) {
+      .cal-cell {
+        min-height: 80px;
+        padding: 6px;
+      }
+    }
+  </style>
+
+  <!-- Helpers / Config (parte del template Sneat) -->
+  <script src="../assets/vendor/js/helpers.js"></script>
+  <script src="../assets/js/config.js"></script>
+</head>
+
+<body>
+  <div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
+
+      <!-- ===== MENÚ LATERAL ===== -->
+      <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+        <div class="app-brand demo">
+          <a href="javascript:void(0);" class="app-brand-link" data-page="dashboard">
+            <span class="app-brand-logo demo">
+              <span class="text-primary">
+                <svg width="25" viewBox="0 0 25 42" xmlns="http://www.w3.org/2000/svg">...</svg>
+              </span>
+            </span>
+            <span class="app-brand-text demo menu-text fw-bold ms-2">RONI</span>
+          </a>
+
+          <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+            <i class="bx bx-chevron-left d-block d-xl-none align-middle"></i>
+          </a>
         </div>
 
-        <div class="col-12 mb-3">
-          <div class="card">
-            <h5 class="card-header">Other Important Links</h5>
-            <!-- Other Links -->
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Name</th>
-                  <th scope="col">URL</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>License</td>
-                  <td>
-                    <a href="https://themeselection.com/license/" target="_blank"
-                      >https://themeselection.com/license/</a
-                    >
-                  </td>
-                </tr>
+        <div class="menu-divider mt-0"></div>
+        <div class="menu-inner-shadow"></div>
 
-                <tr>
-                  <td>Documentation</td>
-                  <td>
-                    <a
-                      href="https://demos.themeselection.com/sneat-bootstrap-html-admin-template/documentation/"
-                      target="_blank"
-                      >https://demos.themeselection.com/sneat-bootstrap-html-admin-template/documentation/</a
-                    >
-                  </td>
-                </tr>
+        <ul class="menu-inner py-1">
+          <li class="menu-item active" id="menu-dashboard">
+            <a href="javascript:void(0);" class="menu-link" data-page="dashboard">
+              <i class="menu-icon tf-icons bx bx-home-smile"></i>
+              <div class="text-truncate">Dashboard</div>
+            </a>
+          </li>
 
-                <tr>
-                  <td>Changelog</td>
-                  <td>
-                    <a
-                      href="https://github.com/themeselection/sneat-bootstrap-html-admin-template-free/blob/main/CHANGELOG.md"
-                      target="_blank"
-                      >https://github.com/themeselection/sneat-bootstrap-html-admin-template-free/blob/main/CHANGELOG.md</a
-                    >
-                  </td>
-                </tr>
+          <li class="menu-header small text-uppercase"><span class="menu-header-text">Mis Rutinas</span></li>
+          <li class="menu-item" id="menu-estudio"><a href="javascript:void(0);" class="menu-link" data-page="estudio"><i
+                class="menu-icon tf-icons bx bx-book-open"></i>
+              <div class="text-truncate">Estudio</div>
+            </a></li>
+          <li class="menu-item" id="menu-ejercicio"><a href="javascript:void(0);" class="menu-link"
+              data-page="ejercicio"><i class="menu-icon tf-icons bx bx-dumbbell"></i>
+              <div class="text-truncate">Ejercicio</div>
+            </a></li>
+          <li class="menu-item" id="menu-sueno"><a href="javascript:void(0);" class="menu-link" data-page="sueno"><i
+                class="menu-icon tf-icons bx bx-moon"></i>
+              <div class="text-truncate">Sueño</div>
+            </a></li>
+          <li class="menu-item" id="menu-peso"><a href="javascript:void(0);" class="menu-link" data-page="peso"><i
+                class="menu-icon tf-icons bx bx-body"></i>
+              <div class="text-truncate">Peso</div>
+            </a></li>
 
-                <tr>
-                  <td>GitHub Repository</td>
-                  <td>
-                    <a href="https://github.com/themeselection/sneat-html-admin-template-free" target="_blank"
-                      >https://github.com/themeselection/sneat-html-admin-template-free</a
-                    >
-                  </td>
-                </tr>
+          <li class="menu-header small text-uppercase"><span class="menu-header-text">Desarrollo</span></li>
+          <li class="menu-item" id="menu-proyectos"><a href="javascript:void(0);" class="menu-link"
+              data-page="proyectos"><i class="menu-icon tf-icons bx bx-code-alt"></i>
+              <div class="text-truncate">Proyectos</div>
+            </a></li>
 
-                <tr>
-                  <td>Support</td>
-                  <td>
-                    <a href="https://github.com/themeselection/sneat-html-admin-template-free/issues" target="_blank"
-                      >https://github.com/themeselection/sneat-html-admin-template-free/issues</a
-                    >
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <!--/ Other Links -->
+          <li class="menu-header small text-uppercase"><span class="menu-header-text">Organización</span></li>
+          <li class="menu-item" id="menu-calendario"><a href="javascript:void(0);" class="menu-link"
+              data-page="calendario"><i class="menu-icon tf-icons bx bx-calendar"></i>
+              <div class="text-truncate">Calendario</div>
+            </a></li>
+          <li class="menu-item" id="menu-kanban"><a href="javascript:void(0);" class="menu-link" data-page="kanban"><i
+                class="menu-icon tf-icons bx bx-columns"></i>
+              <div class="text-truncate">Kanban</div>
+            </a></li>
+
+          <li class="menu-header small text-uppercase"><span class="menu-header-text">Recursos</span></li>
+          <li class="menu-item"><a href="ui-alerts.html" class="menu-link"><i
+                class="menu-icon tf-icons bx bx-cube-alt"></i>
+              <div class="text-truncate">Componentes UI</div>
+            </a></li>
+        </ul>
+      </aside>
+      <!-- / Menú lateral -->
+
+      <!-- Layout page -->
+      <div class="layout-page">
+        <!-- Navbar -->
+        <nav
+          class="layout-navbar container-xxl navbar-detached navbar navbar-expand-xl align-items-center bg-navbar-theme"
+          id="layout-navbar">
+          <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
+            <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)"><i
+                class="icon-base bx bx-menu icon-md"></i></a>
           </div>
-        </div>
 
-        <div class="col-12 mb-3">
-          <p>Looking for <strong>PRO</strong> version with <strong>Premium support</strong>?</p>
-          <div class="upgrade-to-pro">
-            <a
-              href="https://themeselection.com/item/sneat-bootstrap-html-admin-template/"
-              target="_blank"
-              class="btn btn-danger"
-              >Upgrade to <strong class="ms-1">Sneat Pro</strong></a
-            >
+          <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
+            <ul class="navbar-nav flex-row align-items-center ms-auto">
+              <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
+                  <div class="avatar avatar-online">
+                    <img src="../assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                  </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="#">
+                      <div class="d-flex">
+                        <div class="flex-shrink-0 me-3">
+                          <div class="avatar avatar-online"><img src="../assets/img/avatars/1.png" alt
+                              class="w-px-40 h-auto rounded-circle" /></div>
+                        </div>
+                        <div class="flex-grow-1">
+                          <h6 class="mb-0">Roni</h6><small class="text-body-secondary">Admin</small>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                  <li>
+                    <div class="dropdown-divider my-1"></div>
+                  </li>
+                  <li><a class="dropdown-item" href="javascript:void(0);"><i
+                        class="icon-base bx bx-power-off icon-md me-3"></i><span>Cerrar sesión</span></a></li>
+                </ul>
+              </li>
+            </ul>
           </div>
+        </nav>
+        <!-- / Navbar -->
+
+        <!-- Content wrapper -->
+        <div class="content-wrapper">
+          <div class="container-xxl flex-grow-1 container-p-y" id="page-content">
+
+            <!-- ===== DASHBOARD (vista principal) ===== -->
+            <div id="view-dashboard">
+              <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Hola,</span> Roni 👋</h4>
+
+              <!-- Resumen de rutinas -->
+              <div class="row">
+                <div class="col-sm-6 col-xl-3 mb-6">
+                  <div class="card h-100">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                      <div class="d-flex justify-content-between mb-3">
+                        <div>
+                          <p class="mb-1">Estudio hoy</p>
+                          <h4 class="card-title mb-0" id="dash-estudio-horas">-- hrs</h4>
+                        </div>
+                        <div class="avatar"><span class="avatar-initial rounded-2 bg-label-primary"><i
+                              class="icon-base bx bx-book-open icon-lg text-primary"></i></span></div>
+                      </div>
+                      <small class="text-muted" id="dash-estudio-materia">Sin registro hoy</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3 mb-6">
+                  <div class="card h-100">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                      <div class="d-flex justify-content-between mb-3">
+                        <div>
+                          <p class="mb-1">Ejercicio hoy</p>
+                          <h4 class="card-title mb-0" id="dash-ejercicio-min">-- min</h4>
+                        </div>
+                        <div class="avatar"><span class="avatar-initial rounded-2 bg-label-success"><i
+                              class="icon-base bx bx-dumbbell icon-lg text-success"></i></span></div>
+                      </div>
+                      <small class="text-muted" id="dash-ejercicio-tipo">Sin registro hoy</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3 mb-6">
+                  <div class="card h-100">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                      <div class="d-flex justify-content-between mb-3">
+                        <div>
+                          <p class="mb-1">Sueño anoche</p>
+                          <h4 class="card-title mb-0" id="dash-sueno-horas">-- hrs</h4>
+                        </div>
+                        <div class="avatar"><span class="avatar-initial rounded-2 bg-label-info"><i
+                              class="icon-base bx bx-moon icon-lg text-info"></i></span></div>
+                      </div>
+                      <small class="text-muted" id="dash-sueno-calidad">Sin registro</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3 mb-6">
+                  <div class="card h-100">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                      <div class="d-flex justify-content-between mb-3">
+                        <div>
+                          <p class="mb-1">Peso actual</p>
+                          <h4 class="card-title mb-0" id="dash-peso-kg">-- kg</h4>
+                        </div>
+                        <div class="avatar"><span class="avatar-initial rounded-2 bg-label-warning"><i
+                              class="icon-base bx bx-body icon-lg text-warning"></i></span></div>
+                      </div>
+                      <small class="text-muted" id="dash-peso-meta">Sin registro</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FILA: Proyectos (izq) | Resúmenes (der) -->
+              <div class="row">
+                <!-- IZQUIERDA: Proyectos (este contenedor lo actualiza cargarProyectos()) -->
+                <div class="col-lg-8 col-12 mb-6">
+                  <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                      <h5 class="mb-0">Proyectos de programación</h5>
+                      <button class="btn btn-sm btn-primary" onclick="navegarA('proyectos')">Ver todos</button>
+                    </div>
+                    <div class="card-body">
+                      <!-- Este contenedor debe ser exclusivo para proyectos (cargarProyectos lo sobrescribe) -->
+                      <div id="dash-proyectos-lista">
+                        <p class="text-muted">Cargando proyectos...</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- DERECHA: Resúmenes persistentes (eventos + resumen kanban) -->
+                <div class="col-lg-4 col-12 mb-6">
+                  <!-- Próximos eventos (7 días) -->
+                  <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                      <h5 class="mb-0">📅 Próximos eventos (7 días)</h5>
+                      <button class="btn btn-sm btn-outline-primary" onclick="navegarA('calendario')">Ver</button>
+                    </div>
+                    <div class="card-body p-0">
+                      <ul id="dash-eventos-lista" class="list-group list-group-flush">
+                        <li class="list-group-item text-muted">Cargando...</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Resumen Kanban -->
+                  <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                      <h5 class="mb-0">📋 Resumen Kanban</h5>
+                      <button class="btn btn-sm btn-outline-primary" onclick="navegarA('kanban')">Ver tablero</button>
+                    </div>
+                    <div class="card-body">
+                      <div class="row text-center mb-3">
+                        <div class="col-4">
+                          <h3 class="mb-0 text-warning" id="dash-kanban-pendiente">0</h3>
+                          <small class="text-muted">Pendientes</small>
+                        </div>
+                        <div class="col-4">
+                          <h3 class="mb-0 text-primary" id="dash-kanban-progreso">0</h3>
+                          <small class="text-muted">En progreso</small>
+                        </div>
+                        <div class="col-4">
+                          <h3 class="mb-0 text-success" id="dash-kanban-hecho">0</h3>
+                          <small class="text-muted">Completadas</small>
+                        </div>
+                      </div>
+                      <div id="dash-kanban-tareas">
+                        <p class="text-muted small">Cargando resumen Kanban...</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- / fila proyectos + resúmenes -->
+            </div>
+            <!-- / Dashboard -->
+
+            <!-- ===== ESTUDIO ===== -->
+            <div id="view-estudio" class="d-none">
+              <h4 class="fw-bold py-3 mb-4">📚 Rutina de Estudio</h4>
+              <!-- ... contenido Estudio (sin cambios funcionales) ... -->
+              <!-- (conserva exactamente los mismos ids que usas en JS: est-fecha, tabla-estudio, etc.) -->
+              <div class="card mb-6">
+                <div class="card-header">
+                  <h5 class="mb-0">Registrar sesión de estudio</h5>
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-md-3"><label class="form-label">Fecha</label><input type="date" class="form-control"
+                        id="est-fecha" /></div>
+                    <div class="col-md-3"><label class="form-label">Materia</label><input type="text"
+                        class="form-control" id="est-materia" placeholder="Ej: Matemáticas" /></div>
+                    <div class="col-md-2"><label class="form-label">Horas</label><input type="number"
+                        class="form-control" id="est-horas" placeholder="2.5" step="0.5" min="0" /></div>
+                    <div class="col-md-4"><label class="form-label">Notas</label><input type="text" class="form-control"
+                        id="est-notas" placeholder="Opcional" /></div>
+                    <div class="col-12"><button class="btn btn-primary" onclick="agregarEstudio()"><i
+                          class="bx bx-plus me-1"></i> Agregar</button></div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="mb-0">Historial</h5>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Materia</th>
+                        <th>Horas</th>
+                        <th>Notas</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tabla-estudio">
+                      <tr>
+                        <td colspan="5" class="text-center text-muted">Cargando...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <!-- / Estudio -->
+
+            <!-- ===== EJERCICIO ===== -->
+            <div id="view-ejercicio" class="d-none">
+              <h4 class="fw-bold py-3 mb-4">💪 Rutina de Ejercicio</h4>
+              <!-- ... (igual al anterior) -->
+              <div class="card mb-6">
+                <div class="card-header">
+                  <h5 class="mb-0">Registrar ejercicio</h5>
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-md-3"><label class="form-label">Fecha</label><input type="date" class="form-control"
+                        id="ej-fecha" /></div>
+                    <div class="col-md-3"><label class="form-label">Tipo</label><input type="text" class="form-control"
+                        id="ej-tipo" placeholder="Ej: Cardio, Pesas" /></div>
+                    <div class="col-md-2"><label class="form-label">Duración (min)</label><input type="number"
+                        class="form-control" id="ej-duracion" placeholder="45" min="1" /></div>
+                    <div class="col-md-2"><label class="form-label">Completado</label><select class="form-select"
+                        id="ej-completado">
+                        <option value="1">✅ Sí</option>
+                        <option value="0">❌ No</option>
+                      </select></div>
+                    <div class="col-12"><button class="btn btn-success" onclick="agregarEjercicio()"><i
+                          class="bx bx-plus me-1"></i> Agregar</button></div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="mb-0">Historial</h5>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Duración</th>
+                        <th>Completado</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tabla-ejercicio">
+                      <tr>
+                        <td colspan="5" class="text-center text-muted">Cargando...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <!-- / Ejercicio -->
+
+            <!-- ===== SUEÑO ===== -->
+            <div id="view-sueno" class="d-none">
+              <h4 class="fw-bold py-3 mb-4">😴 Registro de Sueño</h4>
+              <!-- ... -->
+              <div class="card mb-6">
+                <div class="card-header">
+                  <h5 class="mb-0">Registrar sueño</h5>
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-md-3"><label class="form-label">Fecha</label><input type="date" class="form-control"
+                        id="sue-fecha" /></div>
+                    <div class="col-md-2"><label class="form-label">Me dormí</label><input type="time"
+                        class="form-control" id="sue-dormir" /></div>
+                    <div class="col-md-2"><label class="form-label">Me desperté</label><input type="time"
+                        class="form-control" id="sue-despertar" /></div>
+                    <div class="col-md-3"><label class="form-label">Calidad (1-5)</label><select class="form-select"
+                        id="sue-calidad">
+                        <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+                        <option value="4">⭐⭐⭐⭐ Buena</option>
+                        <option value="3">⭐⭐⭐ Regular</option>
+                        <option value="2">⭐⭐ Mala</option>
+                        <option value="1">⭐ Muy mala</option>
+                      </select></div>
+                    <div class="col-12"><button class="btn btn-info text-white" onclick="agregarSueno()"><i
+                          class="bx bx-plus me-1"></i> Agregar</button></div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="mb-0">Historial</h5>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Dormí</th>
+                        <th>Desperté</th>
+                        <th>Horas</th>
+                        <th>Calidad</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tabla-sueno">
+                      <tr>
+                        <td colspan="6" class="text-center text-muted">Cargando...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <!-- / Sueño -->
+
+            <!-- ===== PESO ===== -->
+            <div id="view-peso" class="d-none">
+              <h4 class="fw-bold py-3 mb-4">⚖️ Control de Peso</h4>
+              <!-- ... -->
+              <div class="card mb-6">
+                <div class="card-header">
+                  <h5 class="mb-0">Registrar peso</h5>
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-md-3"><label class="form-label">Fecha</label><input type="date" class="form-control"
+                        id="pes-fecha" /></div>
+                    <div class="col-md-2"><label class="form-label">Peso (kg)</label><input type="number"
+                        class="form-control" id="pes-peso" placeholder="70.5" step="0.1" /></div>
+                    <div class="col-md-2"><label class="form-label">Meta (kg)</label><input type="number"
+                        class="form-control" id="pes-meta" placeholder="65" step="0.1" /></div>
+                    <div class="col-md-3"><label class="form-label">Notas</label><input type="text" class="form-control"
+                        id="pes-notas" placeholder="Opcional" /></div>
+                    <div class="col-12"><button class="btn btn-warning text-white" onclick="agregarPeso()"><i
+                          class="bx bx-plus me-1"></i> Agregar</button></div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="mb-0">Historial</h5>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Peso (kg)</th>
+                        <th>Meta (kg)</th>
+                        <th>Notas</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tabla-peso">
+                      <tr>
+                        <td colspan="5" class="text-center text-muted">Cargando...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <!-- / Peso -->
+
+            <!-- ===== PROYECTOS (Vista completa) ===== -->
+            <div id="view-proyectos" class="d-none">
+              <h4 class="fw-bold py-3 mb-4">💻 Proyectos de Programación</h4>
+              <!-- Formulario añadir proyecto -->
+              <div class="card mb-6">
+                <div class="card-header">
+                  <h5 class="mb-0">Agregar proyecto</h5>
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-md-3"><label class="form-label">Nombre</label><input type="text"
+                        class="form-control" id="proy-nombre" placeholder="Mi App" /></div>
+                    <div class="col-md-3"><label class="form-label">Descripción</label><input type="text"
+                        class="form-control" id="proy-desc" placeholder="Breve descripción" /></div>
+                    <div class="col-md-2"><label class="form-label">Tecnologías</label><input type="text"
+                        class="form-control" id="proy-tech" placeholder="HTML, JS, Node" /></div>
+                    <div class="col-md-2"><label class="form-label">Avance %</label><input type="number"
+                        class="form-control" id="proy-avance" placeholder="0" min="0" max="100" /></div>
+                    <div class="col-md-2"><label class="form-label">Estado</label><select class="form-select"
+                        id="proy-estado">
+                        <option>En progreso</option>
+                        <option>Pausado</option>
+                        <option>Completado</option>
+                      </select></div>
+                    <div class="col-12"><button class="btn btn-primary" onclick="agregarProyecto()"><i
+                          class="bx bx-plus me-1"></i> Agregar</button></div>
+                  </div>
+                </div>
+              </div>
+              <div class="row" id="lista-proyectos">
+                <p class="text-muted">Cargando proyectos...</p>
+              </div>
+            </div>
+            <!-- / Proyectos -->
+
+            <!-- ===== CALENDARIO ===== -->
+            <!-- Envuelto en la vista SPA para que navegarA('calendario') funcione correctamente -->
+            <div id="view-calendario" class="d-none">
+              <h4 class="fw-bold py-3 mb-4">Calendario de Eventos</h4>
+
+              <div class="row">
+                <!-- Formulario -->
+                <div class="col-md-4">
+                  <div class="card mb-4">
+                    <div class="card-header">
+                      <h5 class="mb-0">Nuevo Evento</h5>
+                    </div>
+                    <div class="card-body">
+                      <div class="mb-3"><label class="form-label">Título</label><input type="text" id="cal-titulo"
+                          class="form-control" /></div>
+                      <div class="mb-3"><label class="form-label">Fecha</label><input type="date" id="cal-fecha"
+                          class="form-control" /></div>
+                      <div class="mb-3"><label class="form-label">Tipo</label>
+                        <select id="cal-tipo" class="form-select">
+                          <option value="salida">🚗 Salida</option>
+                          <option value="compromiso">🤝 Compromiso</option>
+                          <option value="pendiente">📌 Pendiente</option>
+                        </select>
+                      </div>
+                      <button class="btn btn-primary w-100" onclick="agregarEvento()">Guardar Evento</button>
+                    </div>
+                  </div>
+
+                  <!-- Lista de eventos (opcional) -->
+                  <div class="card">
+                    <div class="card-header">
+                      <h6 class="mb-0">Eventos registrados</h6>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>Fecha</th>
+                            <th>Título</th>
+                            <th>Tipo</th>
+                            <th>Acción</th>
+                          </tr>
+                        </thead>
+                        <tbody id="lista-eventos">
+                          <tr>
+                            <td colspan="4" class="text-center text-muted">Cargando...</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Calendario Visual -->
+                <div class="col-md-8">
+                  <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                      <div class="d-flex align-items-center">
+                        <button class="btn btn-sm btn-icon btn-outline-secondary me-2"
+                          onclick="navegarFecha(-1)">◀</button>
+                        <h5 class="mb-0" id="cal-label-mes"></h5>
+                        <button class="btn btn-sm btn-icon btn-outline-secondary ms-2"
+                          onclick="navegarFecha(1)">▶</button>
+                      </div>
+                      <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary active" id="btn-vista-mes"
+                          onclick="cambiarVistaCal('mes')">Mes</button>
+                        <button class="btn btn-outline-primary" id="btn-vista-semana"
+                          onclick="cambiarVistaCal('semana')">Semana</button>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div id="cal-main-container">
+                        <div id="cal-grid-header" class="cal-grid"
+                          style="grid-template-rows: auto; margin-bottom: 2px;">
+                          <div class="cal-day-label">Lun</div>
+                          <div class="cal-day-label">Mar</div>
+                          <div class="cal-day-label">Mié</div>
+                          <div class="cal-day-label">Jue</div>
+                          <div class="cal-day-label">Vie</div>
+                          <div class="cal-day-label">Sáb</div>
+                          <div class="cal-day-label">Dom</div>
+                        </div>
+                        <div id="cal-grid-body" class="cal-grid"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- / Calendario -->
+
+            <!-- ===== KANBAN ===== -->
+            <div id="view-kanban" class="d-none">
+              <div class="d-flex justify-content-between align-items-center py-3 mb-4">
+                <h4 class="fw-bold mb-0">📋 Tablero Kanban</h4>
+                <button class="btn btn-primary" onclick="nuevaTarea()">+ Nueva Tarea</button>
+              </div>
+
+              <div class="row g-4">
+                <div class="col-md-4">
+                  <div class="card bg-light border-0 shadow-none">
+                    <div
+                      class="card-header d-flex align-items-center justify-content-between bg-transparent border-bottom mb-3">
+                      <h6 class="mb-0 text-uppercase fw-bold">Pendientes 📌</h6>
+                    </div>
+                    <div id="kanban-pendiente" class="p-2" style="min-height:200px" data-col="pendiente"></div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="card bg-light border-0 shadow-none">
+                    <div
+                      class="card-header d-flex align-items-center justify-content-between bg-transparent border-bottom mb-3 text-primary">
+                      <h6 class="mb-0 text-uppercase fw-bold">En Progreso ⚡</h6>
+                    </div>
+                    <div id="kanban-progreso" class="p-2" style="min-height:200px" data-col="progreso"></div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="card bg-light border-0 shadow-none">
+                    <div
+                      class="card-header d-flex align-items-center justify-content-between bg-transparent border-bottom mb-3 text-success">
+                      <h6 class="mb-0 text-uppercase fw-bold">Completado ✅</h6>
+                    </div>
+                    <div id="kanban-hecho" class="p-2" style="min-height:200px" data-col="hecho"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- / KANBAN -->
+
+          </div>
+
+          <!-- Footer -->
+          <footer class="content-footer footer bg-footer-theme">
+            <div class="container-xxl">
+              <div
+                class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
+                <div class="mb-2 mb-md-0">©
+                  <script>document.write(new Date().getFullYear());</script> RONI — Dashboard Personal
+                </div>
+              </div>
+            </div>
+          </footer>
+
+          <div class="content-backdrop fade"></div>
         </div>
+        <!-- / Content wrapper -->
       </div>
+      <!-- / Layout page -->
     </div>
-    <!-- / Content -->
-  </body>
+
+    <div class="layout-overlay layout-menu-toggle"></div>
+  </div>
+
+  <!-- Scripts base (template) -->
+  <script src="../assets/vendor/libs/jquery/jquery.js"></script>
+  <script src="../assets/vendor/libs/popper/popper.js"></script>
+  <script src="../assets/vendor/js/bootstrap.js"></script>
+  <script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+  <script src="../assets/vendor/js/menu.js"></script>
+  <script src="../assets/js/main.js"></script>
+
+  <!-- ===== LÓGICA DEL DASHBOARD (JS) ===== -->
+  <script>
+    /* -------------------------
+       Config
+       ------------------------- */
+    const API = 'http://localhost:4000/api';
+
+    /* -------------------------
+       Vistas SPA
+       ------------------------- */
+    const vistas = ['dashboard', 'estudio', 'ejercicio', 'sueno', 'peso', 'proyectos', 'calendario', 'kanban'];
+
+    /* -------------------------
+       Navegación SPA
+       - mostrar/ocultar vistas y llamar cargarVista()
+       ------------------------- */
+    function navegarA(pagina) {
+      // ocultar todas
+      vistas.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) el.classList.add('d-none');
+      });
+
+      // mostrar target
+      const vistaTarget = document.getElementById('view-' + pagina);
+      if (vistaTarget) vistaTarget.classList.remove('d-none');
+
+      // actualizar menú activo
+      document.querySelectorAll('.menu-item').forEach(li => li.classList.remove('active'));
+      const menuItem = document.getElementById('menu-' + pagina);
+      if (menuItem) menuItem.classList.add('active');
+
+      // si es calendario, forzar altura y recargar calendario nativo
+      if (pagina === 'calendario') {
+        const calBody = document.getElementById('cal-grid-body');
+        if (calBody) calBody.style.minHeight = '480px';
+      }
+
+      // si es kanban, recargar tablero (por si cambió)
+      if (pagina === 'kanban') {
+        setTimeout(() => { try { cargarKanban(); } catch (e) { console.error(e); } }, 50);
+      }
+
+      // cargar datos de la vista
+      cargarVista(pagina);
+    }
+
+    // centraliza carga por vista
+    function cargarVista(pagina) {
+      if (pagina === 'dashboard') cargarDashboard();
+      if (pagina === 'estudio') cargarEstudio();
+      if (pagina === 'ejercicio') cargarEjercicio();
+      if (pagina === 'sueno') cargarSueno();
+      if (pagina === 'peso') cargarPeso();
+      if (pagina === 'proyectos') cargarProyectos();
+      if (pagina === 'calendario') cargarCalendario();
+      if (pagina === 'kanban') cargarKanban();
+    }
+
+    // prevenir comportamiento por defecto y usar SPA
+    document.querySelectorAll('.menu-link[data-page]').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        navegarA(this.dataset.page);
+      });
+    });
+
+    /* -------------------------
+       Helpers
+       ------------------------- */
+    const hoy = () => new Date().toISOString().split('T')[0];
+    function calcularHoras(dormir, despertar) {
+      const [h1, m1] = dormir.split(':').map(Number);
+      const [h2, m2] = despertar.split(':').map(Number);
+      let mins = (h2 * 60 + m2) - (h1 * 60 + m1);
+      if (mins < 0) mins += 24 * 60;
+      return (mins / 60).toFixed(1);
+    }
+    const estrellas = n => '⭐'.repeat(n);
+    function badgeEstado(estado) {
+      const colores = { 'En progreso': 'primary', 'Pausado': 'warning', 'Completado': 'success' };
+      return `<span class="badge bg-label-${colores[estado] || 'secondary'}">${estado}</span>`;
+    }
+
+    /* -------------------------
+       Cargar Dashboard
+       ------------------------- */
+    async function cargarDashboard() {
+      const fechaHoy = hoy();
+
+      // Estudio
+      try {
+        const est = await fetch(`${API}/estudio`).then(r => r.json());
+        const hoyEst = est.filter(e => e.fecha === fechaHoy);
+        const totalHrs = hoyEst.reduce((a, b) => a + (b.horas || 0), 0);
+        document.getElementById('dash-estudio-horas').textContent = totalHrs > 0 ? totalHrs + ' hrs' : '0 hrs';
+        document.getElementById('dash-estudio-materia').textContent = hoyEst.length > 0 ? hoyEst.map(e => e.materia).join(', ') : 'Sin registro hoy';
+      } catch (e) { console.error(e); }
+
+      // Ejercicio
+      try {
+        const ej = await fetch(`${API}/ejercicio`).then(r => r.json());
+        const hoyEj = ej.filter(e => e.fecha === fechaHoy);
+        const totalMin = hoyEj.reduce((a, b) => a + (b.duracion_min || 0), 0);
+        document.getElementById('dash-ejercicio-min').textContent = totalMin > 0 ? totalMin + ' min' : '0 min';
+        document.getElementById('dash-ejercicio-tipo').textContent = hoyEj.length > 0 ? hoyEj.map(e => e.tipo).join(', ') : 'Sin registro hoy';
+      } catch (e) { console.error(e); }
+
+      // Sueño
+      try {
+        const sue = await fetch(`${API}/sueno`).then(r => r.json());
+        if (sue.length > 0) {
+          const ultimo = sue[0];
+          const hrs = calcularHoras(ultimo.hora_dormir, ultimo.hora_despertar);
+          document.getElementById('dash-sueno-horas').textContent = hrs + ' hrs';
+          document.getElementById('dash-sueno-calidad').textContent = estrellas(ultimo.calidad) + ' — ' + ultimo.fecha;
+        }
+      } catch (e) { console.error(e); }
+
+      // Peso
+      try {
+        const pes = await fetch(`${API}/peso`).then(r => r.json());
+        if (pes.length > 0) {
+          const ultimo = pes[0];
+          document.getElementById('dash-peso-kg').textContent = ultimo.peso_kg + ' kg';
+          document.getElementById('dash-peso-meta').textContent = ultimo.meta_kg ? 'Meta: ' + ultimo.meta_kg + ' kg' : 'Sin meta definida';
+        }
+      } catch (e) { console.error(e); }
+
+      // Proyectos (mostramos solo 3 en el resumen)
+      try {
+        const proy = await fetch(`${API}/proyectos`).then(r => r.json());
+        const lista = document.getElementById('dash-proyectos-lista');
+        if (lista) {
+          if (proy.length === 0) {
+            lista.innerHTML = '<p class="text-muted">No hay proyectos registrados aún.</p>';
+          } else {
+            lista.innerHTML = proy.slice(0, 3).map(p => `
+              <div class="mb-4">
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="fw-medium">${p.nombre}</span>
+                  ${badgeEstado(p.estado)}
+                </div>
+                <div class="progress" style="height:8px"><div class="progress-bar" style="width:${p.avance_pct}%"></div></div>
+                <small class="text-muted">${p.avance_pct}% — ${p.tecnologias || ''}</small>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (e) { console.error(e); }
+
+      // Eventos próximos (7 días) + resumen Kanban (conteos y tareas pendientes)
+      try {
+        const [evs, tareas] = await Promise.all([
+          fetch(`${API}/eventos`).then(r => r.json()),
+          fetch(`${API}/kanban`).then(r => r.json())
+        ]);
+
+        const hoyDate = new Date(); hoyDate.setHours(0, 0, 0, 0);
+        const limite7 = new Date(hoyDate); limite7.setDate(limite7.getDate() + 7);
+
+        // eventos próximos 7 días
+        const proximos7 = evs.map(e => ({ ...e, _d: new Date(e.fecha + 'T00:00:00') }))
+          .filter(e => e._d >= hoyDate && e._d <= limite7)
+          .sort((a, b) => a._d - b._d).slice(0, 7);
+
+        const listaEvs = document.getElementById('dash-eventos-lista');
+        const iconos = { salida: '🚗', compromiso: '🤝', pendiente: '📌', otro: '📎' };
+        if (listaEvs) {
+          listaEvs.innerHTML = proximos7.length === 0
+            ? '<li class="list-group-item text-muted">Sin eventos en los próximos 7 días</li>'
+            : proximos7.map(e => `
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div style="min-width:0;">
+                  <div class="fw-semibold text-truncate" style="max-width:200px;">${iconos[e.tipo] || '📎'} ${e.titulo}</div>
+                  <small class="text-muted">${e.fecha} • ${e.tipo}</small>
+                </div>
+                <div class="text-end">
+                  <button class="btn btn-sm btn-outline-primary" onclick="navegarA('calendario')">Ver</button>
+                </div>
+              </li>`).join('');
+        }
+
+        // Resumen Kanban
+        const pendientes = tareas.filter(t => t.columna === 'pendiente');
+        const enProgreso = tareas.filter(t => t.columna === 'progreso');
+        const completadas = tareas.filter(t => t.columna === 'hecho');
+
+        const elPend = document.getElementById('dash-kanban-pendiente');
+        const elProg = document.getElementById('dash-kanban-progreso');
+        const elHecho = document.getElementById('dash-kanban-hecho');
+        if (elPend) elPend.textContent = pendientes.length;
+        if (elProg) elProg.textContent = enProgreso.length;
+        if (elHecho) elHecho.textContent = completadas.length;
+
+        const listaKanban = document.getElementById('dash-kanban-tareas');
+        if (listaKanban) {
+          listaKanban.innerHTML = pendientes.length === 0
+            ? '<p class="text-muted small">No hay tareas pendientes</p>'
+            : pendientes.sort((a, b) => {
+              const da = a.fecha_limite ? new Date(a.fecha_limite) : new Date(8640000000000000);
+              const db = b.fecha_limite ? new Date(b.fecha_limite) : new Date(8640000000000000);
+              return da - db;
+            }).slice(0, 5).map(t => {
+              const hasDue = !!t.fecha_limite;
+              const dueDate = hasDue ? new Date(t.fecha_limite + 'T00:00:00') : null;
+              const soon = hasDue && dueDate >= hoyDate && dueDate <= limite7;
+              return `
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div style="min-width:0;">
+                      <div class="small fw-medium text-truncate" style="max-width:220px;">${t.titulo}</div>
+                      ${hasDue ? `<small class="text-muted">${t.fecha_limite}</small>` : `<small class="text-muted">Sin fecha</small>`}
+                    </div>
+                    <div class="text-end">
+                      ${soon ? '<span class="badge bg-danger me-2">Próx</span>' : ''}
+                      <button class="btn btn-sm btn-outline-primary" onclick="navegarA('kanban')">Ir</button>
+                    </div>
+                  </div>`;
+            }).join('');
+        }
+
+      } catch (e) {
+        console.error('Error cargando resumen de eventos/kanban en dashboard:', e);
+      }
+    }
+
+    /* -------------------------
+       Estudio / Ejercicio / Sueño / Peso
+       (mismas funciones que tenías antes)
+       ------------------------- */
+
+    async function cargarEstudio() {
+      document.getElementById('est-fecha').value = hoy();
+      const data = await fetch(`${API}/estudio`).then(r => r.json());
+      const tbody = document.getElementById('tabla-estudio');
+      tbody.innerHTML = data.length === 0 ? '<tr><td colspan="5" class="text-center text-muted">Sin registros</td></tr>' : data.map(e => `
+        <tr>
+          <td>${e.fecha}</td>
+          <td>${e.materia}</td>
+          <td>${e.horas} hrs</td>
+          <td>${e.notas || '—'}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="eliminar('estudio', ${e.id}, cargarEstudio)"><i class="bx bx-trash"></i></button></td>
+        </tr>`).join('');
+    }
+    async function agregarEstudio() {
+      const body = { fecha: document.getElementById('est-fecha').value, materia: document.getElementById('est-materia').value, horas: parseFloat(document.getElementById('est-horas').value), notas: document.getElementById('est-notas').value };
+      if (!body.fecha || !body.materia || isNaN(body.horas)) return alert('Completa los campos obligatorios');
+      await fetch(`${API}/estudio`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      document.getElementById('est-materia').value = ''; document.getElementById('est-horas').value = ''; document.getElementById('est-notas').value = '';
+      cargarEstudio();
+    }
+
+    async function cargarEjercicio() {
+      document.getElementById('ej-fecha').value = hoy();
+      const data = await fetch(`${API}/ejercicio`).then(r => r.json());
+      const tbody = document.getElementById('tabla-ejercicio');
+      tbody.innerHTML = data.length === 0 ? '<tr><td colspan="5" class="text-center text-muted">Sin registros</td></tr>' : data.map(e => `
+        <tr>
+          <td>${e.fecha}</td>
+          <td>${e.tipo}</td>
+          <td>${e.duracion_min} min</td>
+          <td>${e.completado ? '✅' : '❌'}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="eliminar('ejercicio', ${e.id}, cargarEjercicio)"><i class="bx bx-trash"></i></button></td>
+        </tr>`).join('');
+    }
+    async function agregarEjercicio() {
+      const body = { fecha: document.getElementById('ej-fecha').value, tipo: document.getElementById('ej-tipo').value, duracion_min: parseInt(document.getElementById('ej-duracion').value), completado: parseInt(document.getElementById('ej-completado').value) };
+      if (!body.fecha || !body.tipo || isNaN(body.duracion_min)) return alert('Completa los campos obligatorios');
+      await fetch(`${API}/ejercicio`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      document.getElementById('ej-tipo').value = ''; document.getElementById('ej-duracion').value = '';
+      cargarEjercicio();
+    }
+
+    async function cargarSueno() {
+      document.getElementById('sue-fecha').value = hoy();
+      const data = await fetch(`${API}/sueno`).then(r => r.json());
+      const tbody = document.getElementById('tabla-sueno');
+      tbody.innerHTML = data.length === 0 ? '<tr><td colspan="6" class="text-center text-muted">Sin registros</td></tr>' : data.map(e => `
+        <tr>
+          <td>${e.fecha}</td>
+          <td>${e.hora_dormir}</td>
+          <td>${e.hora_despertar}</td>
+          <td>${calcularHoras(e.hora_dormir, e.hora_despertar)} hrs</td>
+          <td>${estrellas(e.calidad)}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="eliminar('sueno', ${e.id}, cargarSueno)"><i class="bx bx-trash"></i></button></td>
+        </tr>`).join('');
+    }
+    async function agregarSueno() {
+      const body = { fecha: document.getElementById('sue-fecha').value, hora_dormir: document.getElementById('sue-dormir').value, hora_despertar: document.getElementById('sue-despertar').value, calidad: parseInt(document.getElementById('sue-calidad').value) };
+      if (!body.fecha || !body.hora_dormir || !body.hora_despertar) return alert('Completa los campos obligatorios');
+      await fetch(`${API}/sueno`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      document.getElementById('sue-dormir').value = ''; document.getElementById('sue-despertar').value = '';
+      cargarSueno();
+    }
+
+    async function cargarPeso() {
+      document.getElementById('pes-fecha').value = hoy();
+      const data = await fetch(`${API}/peso`).then(r => r.json());
+      const tbody = document.getElementById('tabla-peso');
+      tbody.innerHTML = data.length === 0 ? '<tr><td colspan="5" class="text-center text-muted">Sin registros</td></tr>' : data.map(e => `
+        <tr>
+          <td>${e.fecha}</td>
+          <td>${e.peso_kg} kg</td>
+          <td>${e.meta_kg ? e.meta_kg + ' kg' : '—'}</td>
+          <td>${e.notas || '—'}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="eliminar('peso', ${e.id}, cargarPeso)"><i class="bx bx-trash"></i></button></td>
+        </tr>`).join('');
+    }
+    async function agregarPeso() {
+      const body = { fecha: document.getElementById('pes-fecha').value, peso_kg: parseFloat(document.getElementById('pes-peso').value), meta_kg: parseFloat(document.getElementById('pes-meta').value) || null, notas: document.getElementById('pes-notas').value };
+      if (!body.fecha || isNaN(body.peso_kg)) return alert('Completa los campos obligatorios');
+      await fetch(`${API}/peso`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      document.getElementById('pes-peso').value = ''; document.getElementById('pes-meta').value = ''; document.getElementById('pes-notas').value = '';
+      cargarPeso();
+    }
+
+    /* -------------------------
+       Proyectos
+       ------------------------- */
+    async function cargarProyectos() {
+      const data = await fetch(`${API}/proyectos`).then(r => r.json());
+      const lista = document.getElementById('lista-proyectos'); // vista completa
+      if (lista) {
+        lista.innerHTML = data.length === 0 ? '<p class="text-muted col-12">No hay proyectos registrados aún.</p>' : data.map(p => `
+          <div class="col-md-6 col-xl-4 mb-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <h5 class="card-title mb-0">${p.nombre}</h5>
+                  ${badgeEstado(p.estado)}
+                </div>
+                <p class="text-muted small mb-3">${p.descripcion || ''}</p>
+                <div class="mb-2">
+                  <div class="d-flex justify-content-between mb-1">
+                    <small>Avance</small>
+                    <small>${p.avance_pct}%</small>
+                  </div>
+                  <div class="progress" style="height:8px">
+                    <div class="progress-bar bg-primary" style="width:${p.avance_pct}%"></div>
+                  </div>
+                </div>
+                <small class="text-muted"><i class="bx bx-code-alt me-1"></i>${p.tecnologias || 'Sin tecnologías'}</small>
+              </div>
+              <div class="card-footer d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary w-100" onclick="editarProyecto(${p.id}, '${p.nombre.replace(/'/g, "\\'")}', '${(p.descripcion || '').replace(/'/g, "\\'")}', '${(p.tecnologias || '').replace(/'/g, "\\'")}', ${p.avance_pct}, '${p.estado.replace(/'/g, "\\'")}')">
+                  <i class="bx bx-edit me-1"></i>Editar
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="eliminar('proyectos', ${p.id}, cargarProyectos)"><i class="bx bx-trash"></i></button>
+              </div>
+            </div>
+          </div>`).join('');
+      }
+
+      // además rellenar el resumen reducido de proyectos que está en el dashboard
+      const resumen = document.getElementById('dash-proyectos-lista');
+      if (resumen) {
+        resumen.innerHTML = data.length === 0 ? '<p class="text-muted">No hay proyectos registrados aún.</p>' : data.slice(0, 3).map(p => `
+          <div class="mb-4">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="fw-medium">${p.nombre}</span>
+              ${badgeEstado(p.estado)}
+            </div>
+            <div class="progress" style="height:8px"><div class="progress-bar" style="width:${p.avance_pct}%"></div></div>
+            <small class="text-muted">${p.avance_pct}% — ${p.tecnologias || ''}</small>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function agregarProyecto() {
+      const body = {
+        nombre: document.getElementById('proy-nombre').value,
+        descripcion: document.getElementById('proy-desc').value,
+        tecnologias: document.getElementById('proy-tech').value,
+        avance_pct: parseInt(document.getElementById('proy-avance').value) || 0,
+        estado: document.getElementById('proy-estado').value
+      };
+      if (!body.nombre) return alert('El nombre es obligatorio');
+      await fetch(`${API}/proyectos`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      document.getElementById('proy-nombre').value = ''; document.getElementById('proy-desc').value = ''; document.getElementById('proy-tech').value = ''; document.getElementById('proy-avance').value = '';
+      cargarProyectos();
+    }
+
+    async function editarProyecto(id, nombre, desc, tech, avance, estado) {
+      const nuevoAvance = prompt(`Avance actual: ${avance}%\nNuevo avance (0-100):`, avance);
+      if (nuevoAvance === null) return;
+      const nuevoEstado = prompt(`Estado actual: ${estado}\nNuevo estado (En progreso / Pausado / Completado):`, estado);
+      if (nuevoEstado === null) return;
+      await fetch(`${API}/proyectos/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre, descripcion: desc, tecnologias: tech, avance_pct: parseInt(nuevoAvance), estado: nuevoEstado }) });
+      cargarProyectos();
+    }
+
+    /* -------------------------
+       Operaciones genéricas
+       ------------------------- */
+    async function eliminar(seccion, id, callback) { if (!confirm('¿Eliminar este registro?')) return; await fetch(`${API}/${seccion}/${id}`, { method: 'DELETE' }); callback(); }
+
+    /* -------------------------
+       Calendario nativo (reemplaza FullCalendar)
+       ------------------------- */
+    let fechaReferencia = new Date();
+
+    async function initCalendarioNativo() {
+      const gridBody = document.getElementById('cal-grid-body');
+      const labelMes = document.getElementById('cal-label-mes');
+      if (!gridBody || !labelMes) return;
+      gridBody.innerHTML = '';
+      const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      labelMes.textContent = `${nombresMeses[fechaReferencia.getMonth()]} ${fechaReferencia.getFullYear()}`;
+
+      // Obtener eventos (manejar error si backend no responde)
+      let eventos = [];
+      try { eventos = await fetch(`${API}/eventos`).then(r => r.json()); } catch (e) { console.warn('No se pudieron cargar eventos:', e); }
+
+      const primerDiaMes = new Date(fechaReferencia.getFullYear(), fechaReferencia.getMonth(), 1);
+      const ultimoDiaMes = new Date(fechaReferencia.getFullYear(), fechaReferencia.getMonth() + 1, 0);
+      // Ajuste: hacer Lunes = 0 ... Domingo = 6 (adaptado al layout)
+      let startingDay = primerDiaMes.getDay() === 0 ? 6 : primerDiaMes.getDay() - 1;
+
+      // celdas mes anterior
+      const prevMesUltimo = new Date(fechaReferencia.getFullYear(), fechaReferencia.getMonth(), 0).getDate();
+      for (let i = startingDay; i > 0; i--) {
+        gridBody.innerHTML += `<div class="cal-cell dim"><span class="cal-date">${prevMesUltimo - i + 1}</span></div>`;
+      }
+
+      // celdas mes actual
+      for (let d = 1; d <= ultimoDiaMes.getDate(); d++) {
+        const fechaStr = `${fechaReferencia.getFullYear()}-${String(fechaReferencia.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const hoyISO = new Date().toISOString().split('T')[0];
+        const esHoy = (hoyISO === fechaStr);
+        const evsHoy = eventos.filter(e => e.fecha === fechaStr);
+        let htmlEvs = '';
+        evsHoy.forEach(e => {
+          const cls = e.tipo === 'salida' ? 'ev-salida' : (e.tipo === 'compromiso' ? 'ev-compromiso' : 'ev-pendiente');
+          htmlEvs += `<span class="cal-event-badge ${cls}">${e.titulo}</span>`;
+        });
+
+        gridBody.innerHTML += `
+          <div class="cal-cell ${esHoy ? 'today' : ''}" onclick="seleccionarFecha('${fechaStr}')">
+            <span class="cal-date">${d}</span>
+            <div class="cal-events">${htmlEvs}</div>
+          </div>`;
+      }
+    }
+
+    function navegarFecha(dir) {
+      fechaReferencia.setMonth(fechaReferencia.getMonth() + dir);
+      initCalendarioNativo();
+    }
+
+    function seleccionarFecha(f) {
+      const el = document.getElementById('cal-fecha');
+      if (el) el.value = f;
+    }
+
+    async function agregarEvento() {
+      const titulo = document.getElementById('cal-titulo').value;
+      const fecha = document.getElementById('cal-fecha').value;
+      const tipo = document.getElementById('cal-tipo').value;
+      if (!titulo || !fecha) return alert('Pon título y fecha');
+      await fetch(`${API}/eventos`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ titulo, fecha, tipo }) });
+      document.getElementById('cal-titulo').value = '';
+      cargarCalendario();
+      cargarDashboard();
+    }
+
+    async function eliminarEvento(id) {
+      if (!confirm('¿Eliminar evento?')) return;
+      await fetch(`${API}/eventos/${id}`, { method: 'DELETE' });
+      cargarCalendario();
+      cargarDashboard();
+    }
+
+    async function cargarCalendario() {
+      // preparar input fecha
+      const inputFecha = document.getElementById('cal-fecha'); if (inputFecha) inputFecha.value = hoy();
+      // lista de eventos tabular
+      try {
+        const data = await fetch(`${API}/eventos`).then(r => r.json());
+        const tbody = document.getElementById('lista-eventos');
+        if (tbody) tbody.innerHTML = data.length === 0 ? '<tr><td colspan="4" class="text-center text-muted">Sin eventos</td></tr>' : data.map(e => `
+          <tr>
+            <td><span class="badge bg-label-secondary">${e.fecha}</span></td>
+            <td><strong>${e.titulo}</strong></td>
+            <td>${e.tipo}</td>
+            <td><button class="btn btn-sm btn-icon text-danger" onclick="eliminarEvento(${e.id})"><i class="bx bx-trash"></i></button></td>
+          </tr>`).join('');
+      } catch (err) {
+        console.error('Error cargando lista de eventos:', err);
+      }
+
+      // render del calendario visual
+      initCalendarioNativo();
+    }
+
+    /* -------------------------
+       Kanban (igual que antes)
+       ------------------------- */
+    async function cargarKanban() {
+      const data = await fetch(`${API}/kanban`).then(r => r.json());
+      const cols = { 'pendiente': document.getElementById('kanban-pendiente'), 'progreso': document.getElementById('kanban-progreso'), 'hecho': document.getElementById('kanban-hecho') };
+
+      Object.values(cols).forEach(c => {
+        if (!c) return;
+        c.innerHTML = '';
+        c.ondragover = e => e.preventDefault();
+        c.ondrop = function (e) { e.preventDefault(); const id = Number(e.dataTransfer.getData('id')); const columna = this.dataset.col; moverTarea(id, columna); };
+      });
+
+      data.forEach(t => {
+        const div = document.createElement('div'); div.className = 'card mb-3 shadow-sm'; div.draggable = true; div.dataset.id = t.id;
+        div.addEventListener('dragstart', e => { e.dataTransfer.setData('id', String(t.id)); div.classList.add('opacity-50'); });
+        div.addEventListener('dragend', () => div.classList.remove('opacity-50'));
+        const prioColor = { alta: 'danger', normal: 'primary', baja: 'secondary' };
+        const badge = `<span class="badge bg-label-${prioColor[t.prioridad] || 'primary'} ms-1">${t.prioridad || 'normal'}</span>`;
+        div.innerHTML = `
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <h6 class="mb-1">${t.titulo} ${badge}</h6>
+              <div class="dropdown">
+                <button class="btn p-0" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded text-body-secondary"></i></button>
+                <div class="dropdown-menu dropdown-menu-end">
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="moverTarea(${t.id},'pendiente')">📌 Pendiente</a>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="moverTarea(${t.id},'progreso')">⚡ En Progreso</a>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="moverTarea(${t.id},'hecho')">✅ Hecho</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item text-danger" href="javascript:void(0)" onclick="eliminarTarea(${t.id})">🗑 Eliminar</a>
+                </div>
+              </div>
+            </div>
+            <p class="small text-muted mb-0">${t.descripcion || ''}</p>
+            ${t.fecha_limite ? `<small class="text-warning"><i class="bx bx-time me-1"></i>${t.fecha_limite}</small>` : ''}
+          </div>
+        `;
+        const targetCol = cols[t.columna] || cols['pendiente'];
+        if (targetCol) targetCol.appendChild(div);
+      });
+    }
+
+    function nuevaTarea() {
+      const titulo = prompt('Título de la tarea:'); if (!titulo) return;
+      const desc = prompt('Descripción (opcional):');
+      fetch(`${API}/kanban`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ titulo, descripcion: desc, columna: 'pendiente' }) }).then(() => cargarKanban()).then(() => cargarDashboard());
+    }
+
+    async function moverTarea(id, col) {
+      await fetch(`${API}/kanban/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ columna: col }) });
+      cargarKanban(); cargarDashboard();
+    }
+    async function eliminarTarea(id) { if (!confirm('¿Eliminar tarea?')) return; await fetch(`${API}/kanban/${id}`, { method: 'DELETE' }); cargarKanban(); cargarDashboard(); }
+
+    /* -------------------------
+       Inicialización al cargar DOM
+       ------------------------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      // Forzar altura mínima calendario para evitar problemas de render dentro de contenedores ocultos
+      const cal = document.getElementById('cal-grid-body'); if (cal) cal.style.minHeight = '480px';
+
+      // Inicializamos la SPA en dashboard (esto llamará a cargarDashboard que a su vez cargará proyectos/events/kanban)
+      navegarA('dashboard');
+    });
+
+    /* -------------------------
+       Debug note: si algo falla, abre DevTools -> Network y mira /api/eventos y /api/kanban
+       ------------------------- */
+  </script>
+</body>
+
 </html>

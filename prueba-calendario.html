@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calendario - Agosto 2026 (Local)</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --blue-500:#3b82f6;
+      --green-500:#10b981;
+      --orange-500:#f97316;
+      --purple-500:#8b5cf6;
+      --shadow: 0 6px 18px rgba(15,23,42,0.06);
+      --radius:12px;
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    html,body{height:100%;margin:0;background:var(--bg);color:#111827}
+    .wrap{
+      max-width:1200px;margin:28px auto;padding:20px;
+    }
+
+    .card{
+      background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;
+    }
+
+    .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .controls{display:flex;gap:8px;align-items:center}
+    .btn{
+      background:#fff;border:1px solid #e6e9ee;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;color:#111827;
+      box-shadow:none;
+    }
+    .btn.active{background:linear-gradient(90deg,#eef6ff,#f3f7ff);border-color:var(--blue-500);color:var(--blue-500)}
+    .btn.secondary{background:#fafafa}
+    .title{font-size:1.15rem;font-weight:700;color:#0f172a}
+
+    /* Calendar grid */
+    .calendar{display:flex;gap:18px}
+    .month{flex:1;min-width:600px}
+    .weeklabels{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px}
+    .weeklabels .lbl{background:transparent;color:var(--muted);font-size:0.85rem;text-align:center;padding:6px 4px;border-radius:8px}
+
+    .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+    .cell{
+      min-height:110px;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.95));
+      border:1px solid #f0f2f5;position:relative;overflow:hidden;
+    }
+    .cell.dim{opacity:0.45}
+    .cell .date{font-weight:700;color:#111827;font-size:0.95rem;margin-bottom:6px}
+    .cell .events{display:flex;flex-direction:column;gap:6px;max-height:64px;overflow:hidden}
+
+    .event-pill{
+      display:inline-block;padding:4px 8px;border-radius:8px;font-size:0.78rem;color:white;max-width:100%;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;
+    }
+
+    /* multiple events indicator (small dots top-left) */
+    .dots{position:absolute;top:8px;left:8px;display:flex;gap:4px}
+    .dot{width:8px;height:8px;border-radius:50%}
+
+    /* highlight today */
+    .today{box-shadow:0 4px 14px rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.18);}
+
+    /* Right panel (legend + small list) */
+    .side{width:300px}
+    .legend{display:flex;flex-direction:column;gap:10px;padding:8px}
+    .legend-item{display:flex;align-items:center;gap:8px}
+    .legend-swatch{width:14px;height:14px;border-radius:4px}
+
+    /* Week / Day view */
+    .week-view, .day-view{display:none}
+    .time-col{border-left:1px solid #f0f2f5;padding:8px;height:420px;overflow:auto}
+    .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+    .week-slot{min-height:320px;border-radius:8px;background:#fff;padding:8px;border:1px solid #f0f2f5}
+
+    /* footer small */
+    .meta{font-size:0.9rem;color:var(--muted);margin-top:12px;display:flex;justify-content:space-between;align-items:center}
+    .legend-bottom{font-size:0.85rem;color:var(--muted);text-align:right}
+    @media (max-width:900px){
+      .calendar{flex-direction:column}
+      .month{min-width:unset}
+      .side{width:100%}
+      .grid .cell{min-height:90px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="title">Calendario — Agosto 2026</div>
+          <div class="controls" style="margin-left:6px">
+            <button class="btn" id="prevBtn" title="Mes anterior">◀</button>
+            <button class="btn" id="todayBtn" title="Ir a hoy (11 ago 2026)">Hoy</button>
+            <button class="btn" id="nextBtn" title="Mes siguiente">▶</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="color:var(--muted);font-size:0.95rem">Vista:</div>
+          <button class="btn active" data-view="month">Mes</button>
+          <button class="btn" data-view="week">Semana</button>
+          <button class="btn" data-view="day">Día</button>
+        </div>
+      </div>
+
+      <div class="calendar">
+        <!-- MES -->
+        <div class="month card" id="monthView" style="padding:14px">
+          <div class="weeklabels" id="weekLabels"></div>
+          <div class="grid" id="monthGrid" aria-live="polite"></div>
+          <div class="meta">
+            <div>Mes: <strong id="monthName">Agosto 2026</strong></div>
+            <div class="legend-bottom">Eventos mostrados como etiquetas — pulsa una para ver detalles</div>
+          </div>
+        </div>
+
+        <!-- BARRA LATERAL -->
+        <div class="side" style="margin-left:18px">
+          <div class="card" style="padding:12px">
+            <h4 style="margin:0 0 8px 0">Leyenda</h4>
+            <div class="legend">
+              <div class="legend-item"><div class="legend-swatch" style="background:var(--blue-500)"></div><div>Salida con amigos — 14 ago</div></div>
+              <div class="legend-item"><div class="legend-swatch" style="background:var(--green-500)"></div><div>Entrega proyecto — 18 ago</div></div>
+              <div class="legend-item"><div class="legend-swatch" style="background:var(--orange-500)"></div><div>Cita médica — 21 ago</div></div>
+              <div class="legend-item"><div class="legend-swatch" style="background:var(--purple-500)"></div><div>Pagar servicios — 28 ago</div></div>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="card" style="padding:12px">
+            <h4 style="margin:0 0 8px 0">Próximos (resumen)</h4>
+            <ol style="margin:0 0 0 16px;padding:0;color:var(--muted)">
+              <li><strong>14 ago</strong> — Salida con amigos</li>
+              <li><strong>18 ago</strong> — Entrega proyecto</li>
+              <li><strong>21 ago</strong> — Cita médica</li>
+              <li><strong>28 ago</strong> — Pagar servicios</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTAS SEMANA / DÍA -->
+      <div class="card" style="margin-top:14px;padding:12px">
+        <div id="weekView" class="week-view">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div><strong>Semana de</strong> <span id="weekRange">---</span></div>
+            <div style="color:var(--muted)">Vista semanal</div>
+          </div>
+          <div class="week-grid" id="weekGrid"></div>
+        </div>
+
+        <div id="dayView" class="day-view">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div><strong>Día</strong> <span id="dayLabel">---</span></div>
+            <div style="color:var(--muted)">Vista diaria</div>
+          </div>
+          <div id="dayContent" style="padding:8px;background:#fff;border-radius:10px;border:1px solid #f0f2f5"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Datos y configuración
+    const EVENTS = [
+      { id: 1, title: 'Salida con amigos', date: '2026-08-14', color: getComputedStyle(document.documentElement).getPropertyValue('--blue-500').trim() || '#3b82f6' },
+      { id: 2, title: 'Entrega proyecto', date: '2026-08-18', color: getComputedStyle(document.documentElement).getPropertyValue('--green-500').trim() || '#10b981' },
+      { id: 3, title: 'Cita médica', date: '2026-08-21', color: getComputedStyle(document.documentElement).getPropertyValue('--orange-500').trim() || '#f97316' },
+      { id: 4, title: 'Recordatorio: pagar servicios', date: '2026-08-28', color: getComputedStyle(document.documentElement).getPropertyValue('--purple-500').trim() || '#8b5cf6' }
+    ];
+
+    // Usamos como "hoy" la fecha 2026-08-11 (según tu pedido)
+    const TODAY = new Date('2026-08-11T00:00:00');
+
+    // Estado
+    let view = 'month'; // month | week | day
+    let activeDate = new Date(TODAY); // fecha mostrada / seleccionada
+
+    // utilidades
+    const esMesNombre = (d) => {
+      return d.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    };
+    const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1);
+    const endOfMonth = (d) => new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    const pad = n => n < 10 ? '0' + n : n;
+    const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+
+    // Render week labels (Lunes..Domingo)
+    function renderWeekLabels(){
+      const labels = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+      const container = document.getElementById('weekLabels');
+      container.innerHTML = labels.map(l => `<div class="lbl">${l}</div>`).join('');
+    }
+
+    // RENDER MES
+    function renderMonth(){
+      document.getElementById('monthName').textContent = esMesNombre(activeDate);
+      const grid = document.getElementById('monthGrid');
+      grid.innerHTML = '';
+      const first = startOfMonth(activeDate);
+      // índice del primer día de la semana (lunes = 0)
+      const firstWeekday = (first.getDay() + 6) % 7; // convert Sun=0..Sat=6 -> Mon=0..Sun=6
+      const daysInMonth = endOfMonth(activeDate).getDate();
+      const totalCells = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+
+      // create array of Date objects for each cell
+      const cells = [];
+      for(let i=0;i<totalCells;i++){
+        const dayOffset = i - firstWeekday;
+        const d = new Date(first.getFullYear(), first.getMonth(), 1 + dayOffset);
+        cells.push(d);
+      }
+
+      // build DOM
+      cells.forEach(d => {
+        const cell = document.createElement('div');
+        cell.className = 'cell card';
+        if (d.getMonth() !== activeDate.getMonth()) cell.classList.add('dim');
+        // highlight "hoy" (usamos TODAY variable)
+        if (d.getFullYear() === TODAY.getFullYear() && d.getMonth() === TODAY.getMonth() && d.getDate() === TODAY.getDate()) {
+          cell.classList.add('today');
+        }
+
+        // date header
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'date';
+        dateDiv.textContent = d.getDate();
+        cell.appendChild(dateDiv);
+
+        // find events for this date
+        const evs = EVENTS.filter(e => e.date === ymd(d));
+        // dots indicator (top-left)
+        if (evs.length > 0){
+          const dots = document.createElement('div');
+          dots.className = 'dots';
+          evs.slice(0,3).forEach(e => {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.style.background = e.color;
+            dots.appendChild(dot);
+          });
+          if (evs.length > 3) {
+            const more = document.createElement('div');
+            more.className = 'dot';
+            more.style.background = '#9ca3af';
+            more.title = `${evs.length} eventos`;
+            dots.appendChild(more);
+          }
+          cell.appendChild(dots);
+        }
+
+        const evWrap = document.createElement('div');
+        evWrap.className = 'events';
+
+        evs.forEach(e => {
+          const pill = document.createElement('div');
+          pill.className = 'event-pill';
+          pill.style.background = e.color;
+          pill.textContent = e.title;
+          pill.title = e.title + ' • ' + e.date;
+          // click para mostrar detalles simples
+          pill.style.cursor = 'pointer';
+          pill.addEventListener('click', (ev) => {
+            alert(e.title + '\n\nFecha: ' + e.date);
+          });
+          evWrap.appendChild(pill);
+        });
+
+        if (evs.length === 0){
+          const placeholder = document.createElement('div');
+          placeholder.style.height = '20px';
+          evWrap.appendChild(placeholder);
+        }
+
+        cell.appendChild(evWrap);
+        grid.appendChild(cell);
+      });
+    }
+
+    // RENDER SEMANA (semana que contiene activeDate)
+    function renderWeek(){
+      const weekContainer = document.getElementById('weekGrid');
+      weekContainer.innerHTML = '';
+      const start = new Date(activeDate);
+      // find Monday of that week
+      const dayIdx = (start.getDay() + 6) % 7;
+      start.setDate(start.getDate() - dayIdx);
+
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6);
+      document.getElementById('weekRange').textContent = `${ymd(start)} → ${ymd(end)}`;
+      for(let i=0;i<7;i++){
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        const slot = document.createElement('div');
+        slot.className = 'week-slot';
+        slot.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-weight:700">${d.toLocaleDateString('es-ES',{weekday:'short', day:'2-digit', month:'short'})}</div>
+            <div style="color:var(--muted)">${d.getFullYear()}</div>
+          </div>`;
+        const evs = EVENTS.filter(e => e.date === ymd(d));
+        evs.forEach(e => {
+          const item = document.createElement('div');
+          item.style.background = e.color;
+          item.style.color = '#fff';
+          item.style.padding = '8px';
+          item.style.borderRadius = '8px';
+          item.style.marginBottom = '8px';
+          item.textContent = e.title;
+          item.title = e.title;
+          item.addEventListener('click', ()=> alert(e.title + '\n\n' + e.date));
+          slot.appendChild(item);
+        });
+        weekContainer.appendChild(slot);
+      }
+    }
+
+    // RENDER DÍA
+    function renderDay(){
+      const container = document.getElementById('dayContent');
+      container.innerHTML = '';
+      const d = new Date(activeDate);
+      document.getElementById('dayLabel').textContent = d.toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+      const evs = EVENTS.filter(e => e.date === ymd(d));
+      if (evs.length === 0){
+        container.innerHTML = '<div style="color:var(--muted)">No hay eventos para este día.</div>';
+        return;
+      }
+      evs.forEach(e => {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.gap = '10px';
+        row.style.alignItems = 'center';
+        row.style.marginBottom = '8px';
+
+        const sw = document.createElement('div');
+        sw.style.width = '12px';
+        sw.style.height = '12px';
+        sw.style.borderRadius = '4px';
+        sw.style.background = e.color;
+        row.appendChild(sw);
+
+        const txt = document.createElement('div');
+        txt.innerHTML = `<strong>${e.title}</strong><div style="color:var(--muted);font-size:0.9rem">${e.date}</div>`;
+        row.appendChild(txt);
+
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.style.marginLeft = 'auto';
+        btn.textContent = 'Detalles';
+        btn.onclick = () => alert(e.title + '\n\nFecha: ' + e.date);
+        row.appendChild(btn);
+
+        container.appendChild(row);
+      });
+    }
+
+    // Update which view is visible
+    function updateView(){
+      document.querySelectorAll('[data-view]').forEach(b => {
+        b.classList.toggle('active', b.dataset.view === view);
+      });
+      document.getElementById('monthView').style.display = view === 'month' ? 'block' : 'none';
+      document.getElementById('weekView').style.display = view === 'week' ? 'block' : 'none';
+      document.getElementById('dayView').style.display = view === 'day' ? 'block' : 'none';
+
+      if (view === 'month') renderMonth();
+      if (view === 'week') renderWeek();
+      if (view === 'day') renderDay();
+    }
+
+    // navigation
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if (view === 'month') activeDate.setMonth(activeDate.getMonth() - 1);
+      else if (view === 'week') activeDate.setDate(activeDate.getDate() - 7);
+      else activeDate.setDate(activeDate.getDate() - 1);
+      updateView();
+    });
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (view === 'month') activeDate.setMonth(activeDate.getMonth() + 1);
+      else if (view === 'week') activeDate.setDate(activeDate.getDate() + 7);
+      else activeDate.setDate(activeDate.getDate() + 1);
+      updateView();
+    });
+    document.getElementById('todayBtn').addEventListener('click', () => {
+      activeDate = new Date(TODAY);
+      updateView();
+    });
+
+    // view buttons
+    document.querySelectorAll('[data-view]').forEach(b => {
+      b.addEventListener('click', () => {
+        view = b.dataset.view;
+        updateView();
+      });
+    });
+
+    // initial render
+    renderWeekLabels();
+    updateView();
+
+    // small enhancement: clicking a day cell in month switches to day view for that date
+    document.getElementById('monthGrid').addEventListener('click', (ev) => {
+      const cell = ev.target.closest('.cell');
+      if (!cell) return;
+      // find date text inside .date
+      const dateText = cell.querySelector('.date');
+      if (!dateText) return;
+      const day = parseInt(dateText.textContent,10);
+      const d = new Date(activeDate.getFullYear(), activeDate.getMonth(), day);
+      activeDate = d;
+      view = 'day';
+      updateView();
+      // scroll to top so user sees day
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
