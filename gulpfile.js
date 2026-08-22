@@ -61,10 +61,12 @@ const watchTask = function () {
 const serveTasks = function () {
   browserSync.init({
     // ? You can change server path variable from build-config.js file
-    server: serverPath
+    server: serverPath,
+    ghostMode: false
   });
   watch([
     // ? You can change add/remove files/folders watch paths in below array
+    'index.html',
     'html/**/*.html',
     'html-starter/**/*.html',
     'assets/vendor/css/*.css',
